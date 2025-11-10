@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma init)",
+      "Bash(npx prisma migrate:*)",
+      "Bash(docker run:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker rm:*)",
+      "Bash(set:*)",
+      "Bash(del prisma.config.ts)",
+      "Bash(cat:*)",
+      "Bash(docker logs:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5433/ajd_landing?schema=public\" npx prisma migrate dev:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5433/ajd_landing?schema=public\" npx prisma generate:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5433/ajd_landing?schema=public\" npm run db:seed:*)",
+      "Bash(docker start:*)",
+      "Bash(npm run db:seed:*)",
+      "Bash(docker compose:*)",
+      "Bash(npx prisma generate:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
