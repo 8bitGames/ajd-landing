@@ -14,6 +14,7 @@ export default function WritePage() {
   const { user, loading: authLoading } = useAuth();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [category, setCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -29,6 +30,11 @@ export default function WritePage() {
       return;
     }
 
+    if (!category) {
+      setError("카테고리를 선택해주세요.");
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
@@ -36,7 +42,7 @@ export default function WritePage() {
       const res = await fetch("/api/community/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, content }),
+        body: JSON.stringify({ title, content, category }),
       });
 
       const data = await res.json();
@@ -63,21 +69,21 @@ export default function WritePage() {
       <Header />
 
       {/* Hero Banner */}
-      <section className="bg-gradient-to-br from-blue-50 to-purple-50 py-16">
-        <div className="max-w-[1920px] mx-auto px-[420px]">
-          <div className="flex items-center justify-between">
+      <section className="bg-gradient-to-br from-blue-50 to-purple-50 py-8 md:py-12 lg:py-16">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px]">
+          <div className="flex flex-col md:flex-row items-center md:items-center justify-between gap-6">
             <div>
-              <p className="text-gray-800 mb-2">사업의 성장, 준사가 아닌 경제의 원으로</p>
-              <h1 className="text-4xl font-bold mb-2 text-black">서로 배우고 도와주는 진짜 커뮤니티</h1>
-              <h2 className="text-4xl font-bold text-blue-600">김사장에서 함께해요!</h2>
+              <p className="text-gray-800 mb-2 text-[14px] md:text-[16px]">사업의 성장, 준사가 아닌 경제의 원으로</p>
+              <h1 className="text-[24px] md:text-[28px] lg:text-[32px] xl:text-4xl font-bold mb-2 text-black">서로 배우고 도와주는 진짜 커뮤니티</h1>
+              <h2 className="text-[24px] md:text-[28px] lg:text-[32px] xl:text-4xl font-bold text-blue-600">김사장에서 함께해요!</h2>
             </div>
-            <div className="text-8xl">🤝</div>
+            <div className="text-[48px] md:text-[64px] lg:text-8xl">🤝</div>
           </div>
         </div>
       </section>
 
       {/* Main Content */}
-      <div className="max-w-[1920px] mx-auto px-[420px] py-16">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px] py-8 md:py-12 lg:py-16">
         <div className="bg-white rounded-2xl shadow-sm p-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-8">
@@ -100,6 +106,25 @@ export default function WritePage() {
               />
             </div>
 
+            {/* Category Select */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                카테고리
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-[#1a1a1a]"
+              >
+                <option value="">카테고리를 선택해주세요</option>
+                <option value="세무">세무</option>
+                <option value="노무">노무</option>
+                <option value="법률">법률</option>
+                <option value="창폐업">창폐업</option>
+                <option value="기타">기타</option>
+              </select>
+            </div>
+
             {/* Content Textarea */}
             <div>
               <textarea
@@ -110,13 +135,20 @@ export default function WritePage() {
               />
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <div className="text-red-500 text-sm text-center">
+                {error}
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div className="flex justify-center gap-4 pt-4">
-              <Button variant="ghost" size="lg" onClick={handleCancel}>
+              <Button variant="ghost" size="lg" onClick={handleCancel} disabled={loading}>
                 취소
               </Button>
-              <Button variant="primary" size="lg" onClick={handleSubmit}>
-                등록
+              <Button variant="primary" size="lg" onClick={handleSubmit} disabled={loading}>
+                {loading ? "등록 중..." : "등록"}
               </Button>
             </div>
           </div>

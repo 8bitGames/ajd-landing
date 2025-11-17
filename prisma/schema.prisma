@@ -62,6 +62,7 @@ model Post {
   type       PostType
   title      String
   content    String    @db.Text
+  category   String?
   authorId   String
   author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   viewCount  Int       @default(0)

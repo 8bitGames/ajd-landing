@@ -1,46 +1,135 @@
+import Image from "next/image";
+
 export default function ExpertConsultation() {
   const experts = [
-    { id: 1, name: "김전문가", specialty: "세무 전문", color: "from-purple-500 to-purple-700" },
-    { id: 2, name: "이전문가", specialty: "법률 전문", color: "from-blue-500 to-blue-700" },
-    { id: 3, name: "박전문가", specialty: "노무 전문", color: "from-indigo-500 to-indigo-700" },
-    { id: 4, name: "최전문가", specialty: "경영 전문", color: "from-teal-500 to-teal-700" },
+    { id: 1, name: "한지훈 노무사", category: "노무", tag: "#소상공인 전문", image: "/expert-1.png", categoryColor: "#6A043B" },
+    { id: 2, name: "신경수 세무사", category: "세무", tag: "#소상공인 전문", image: "/expert-2.png", categoryColor: "#152E5F" },
+    { id: 3, name: "이혜림 세무사", category: "세무", tag: "#소상공인 전문", image: "/expert-3.png", categoryColor: "#152E5F" },
+    { id: 4, name: "최중락 노무사", category: "세무", tag: "#소상공인 전문", image: "/expert-4.png", categoryColor: "#152E5F" },
   ];
 
   return (
-    <section className="py-16 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-20 left-20 w-64 h-64 bg-blue-400 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-20 w-64 h-64 bg-purple-400 rounded-full blur-3xl"></div>
+    <section className="py-8 md:py-12 lg:py-16 relative overflow-hidden" style={{ backgroundColor: "#F9F3F3" }}>
+      {/* Background Pattern - Hidden on mobile */}
+      <div className="hidden lg:block absolute pointer-events-none left-[499px] top-[-175px] w-[922px] h-[950px]" style={{ mixBlendMode: "screen" }}>
+        <Image
+          src="/expert-consultation-pattern.png"
+          alt=""
+          fill
+          className="object-cover"
+        />
       </div>
 
-      <div className="max-w-[1920px] mx-auto px-[420px] relative z-10">
-        <div className="mb-12">
-          <h2 className="text-3xl font-bold mb-4 text-gray-900">제가 답변해 드립니다!</h2>
-          <p className="text-lg text-gray-600">검증된 전문가의 답변을 바로 받아보세요.</p>
-          <div className="flex gap-2 mt-4">
-            <div className="h-2 w-10 bg-blue-600 rounded-full"></div>
-            <div className="h-2 w-2 bg-gray-300 rounded-full"></div>
-            <div className="h-2 w-2 bg-gray-300 rounded-full"></div>
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px] relative z-10">
+        <div className="flex flex-col lg:flex-row items-start gap-6 lg:gap-8 lg:justify-between">
+          {/* Left Text */}
+          <div className="flex flex-col gap-4 md:gap-6 lg:gap-8 w-full lg:w-[198px]">
+            <div className="flex flex-col gap-6">
+              <h2
+                className="text-[24px] font-bold"
+                style={{ color: "#181A1C", letterSpacing: "-0.7px", lineHeight: "34px" }}
+              >
+                제가 답변해 드립니다!
+              </h2>
+              <p
+                className="font-medium text-[20px]"
+                style={{ color: "#181A1C", lineHeight: "26px" }}
+              >
+                검증된 전문가의 답변을<br />
+                바로 받아보세요.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <div
+                className="rounded-full"
+                style={{
+                  width: "40px",
+                  height: "8px",
+                  backgroundColor: "#0E53DC",
+                }}
+              ></div>
+              <div
+                className="rounded-full"
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  backgroundColor: "#DCDCDC",
+                }}
+              ></div>
+              <div
+                className="rounded-full"
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  backgroundColor: "#DCDCDC",
+                }}
+              ></div>
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          {experts.map((expert) => (
-            <div
-              key={expert.id}
-              className={`bg-gradient-to-br ${expert.color} rounded-xl p-6 text-white hover:scale-105 transition-transform cursor-pointer`}
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-2xl">
-                  👨‍💼
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold">{expert.name}</h3>
-                  <p className="text-sm opacity-90">{expert.specialty}</p>
+          {/* Right Expert Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 w-full lg:flex-1">
+            {experts.map((expert) => (
+              <div
+                key={expert.id}
+                className="relative rounded-[8px] overflow-hidden cursor-pointer h-[160px] md:h-[172px]"
+              >
+                <Image
+                  src={expert.image}
+                  alt={expert.name}
+                  fill
+                  className="object-cover"
+                />
+                <div
+                  className="absolute flex flex-col gap-1"
+                  style={{
+                    left: "16px",
+                    top: "16px",
+                    width: "126px",
+                  }}
+                >
+                  <div className="flex flex-col gap-2">
+                    <div
+                      className="inline-flex items-center justify-center px-2 py-[3px] rounded-[4px]"
+                      style={{
+                        backgroundColor: "rgba(255, 255, 255, 0.6)",
+                        width: "43px",
+                        height: "24px",
+                      }}
+                    >
+                      <span
+                        className="font-medium text-[12px]"
+                        style={{
+                          color: expert.categoryColor,
+                          letterSpacing: "-0.4px",
+                          lineHeight: "14px",
+                        }}
+                      >
+                        {expert.category}
+                      </span>
+                    </div>
+                    <h3
+                      className="font-bold text-[24px] text-white"
+                      style={{
+                        letterSpacing: "-0.7px",
+                        lineHeight: "34px",
+                      }}
+                    >
+                      {expert.name}
+                    </h3>
+                  </div>
+                  <p
+                    className="text-[16px] text-white"
+                    style={{
+                      lineHeight: "20px",
+                    }}
+                  >
+                    {expert.tag}
+                  </p>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -1,4 +1,5 @@
 import { ButtonHTMLAttributes, ReactNode } from "react";
+import { Undo2 } from "lucide-react";
 
 type ButtonVariant =
   | "primary"
@@ -65,10 +66,7 @@ export function BackButton({ className = "", ...props }: ButtonHTMLAttributes<HT
       className={`w-10 h-10 rounded-full bg-[rgba(14,83,220,0.07)] flex items-center justify-center hover:bg-[rgba(14,83,220,0.15)] transition-colors ${className}`}
       {...props}
     >
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M9 14L4 9l5-5" />
-        <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
-      </svg>
+      <Undo2 size={20} className="text-[#0e53dc]" />
     </button>
   );
 }

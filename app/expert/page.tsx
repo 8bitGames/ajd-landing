@@ -6,10 +6,12 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Button from "../components/ui/Button";
 import { QuestionIconSmall } from "../components/ui/Icons";
+import ExpertBannerCarousel from "../components/ExpertBannerCarousel";
 
 interface Question {
   id: string;
   title: string;
+  category?: string;
   createdAt: string;
   author: {
     name: string;
@@ -62,32 +64,16 @@ export default function ExpertPage() {
       <Header />
 
       {/* Banner */}
-      <section className="py-20">
-        <div className="max-w-[1920px] mx-auto px-[420px]">
-          <div
-            className="rounded-[24px] overflow-hidden relative h-[320px]"
-            style={{
-              background: 'linear-gradient(90deg, rgba(248, 238, 238, 1) 0%, rgba(248, 238, 238, 1) 100%)'
-            }}
-          >
-            <div className="flex items-center justify-between px-[64px] h-full">
-              <div className="flex-1">
-                <p className="text-[20px] text-[#555555] leading-[26px] mb-6">
-                  전문가들이 함께 고민하고, 함께 성장합니다
-                </p>
-                <h1 className="text-[32px] font-bold leading-[44px] text-[#0A095B]">
-                  당신의 가게를 위한 1:1 맞춤 솔루션
-                </h1>
-              </div>
-            </div>
-          </div>
+      <section className="py-8 md:py-12 lg:py-20">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px]">
+          <ExpertBannerCarousel />
         </div>
       </section>
 
       {/* Sub tab */}
-      <div className="max-w-[1920px] mx-auto px-[420px]">
-        <div className="border-b-2 border-[#7b8a9c] pb-6 mb-12 flex items-center justify-between">
-          <p className="font-bold text-[20px] text-[#7b8a9c] leading-[28px]" style={{ letterSpacing: '-0.7px' }}>
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px]">
+        <div className="border-b-2 border-[#7b8a9c] pb-4 md:pb-6 mb-8 md:mb-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <p className="font-bold text-[16px] md:text-[18px] lg:text-[20px] text-[#7b8a9c] leading-[24px] md:leading-[28px]" style={{ letterSpacing: '-0.7px' }}>
             홈 &gt; 전문가
           </p>
           <Link href="/expert/write">
@@ -102,7 +88,7 @@ export default function ExpertPage() {
       </div>
 
       {/* Questions List */}
-      <div className="max-w-[1920px] mx-auto px-[420px] pb-16">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px] pb-16">
         {loading ? (
           <div className="text-center py-8 text-gray-500">로딩 중...</div>
         ) : questions.length === 0 ? (
@@ -111,67 +97,103 @@ export default function ExpertPage() {
           <div className="space-y-0">
             {questions.map((question) => (
               <Link key={question.id} href={`/expert/${question.id}`}>
-                <div className="border-b border-[#adadad] h-[104px] flex items-center px-[24px] hover:bg-gray-50 transition-colors cursor-pointer relative">
-                  <div className="flex gap-[32px] items-start w-full">
+                <div className="border-b border-[#adadad] py-4 md:py-6 lg:h-[104px] flex flex-col lg:flex-row items-start lg:items-center px-4 md:px-[24px] hover:bg-gray-50 transition-colors cursor-pointer relative gap-3 lg:gap-0">
+                  <div className="flex gap-4 md:gap-[32px] items-start w-full">
                     <QuestionIconSmall />
-                    <div className="flex flex-col gap-[8px] flex-1">
-                      <h3 className="font-semibold text-[20px] text-[#181a1c] leading-[26px]">
-                        {question.title}
-                    </h3>
-                    <div className="flex gap-[16px] items-center text-[16px]">
-                      <span className="font-medium text-[#393939] leading-[20px]" style={{ letterSpacing: '-0.4px' }}>
-                        {question._count.replies}개의 답변
-                      </span>
-                      <span className="text-[14px] text-[#adadad] leading-[18px]">
-                        {formatDate(question.createdAt)}
-                      </span>
+                    <div className="flex flex-col gap-2 md:gap-[8px] flex-1">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-[12px]">
+                        {question.category && (
+                          <span className="px-[12px] py-[4px] rounded-[12px] bg-[#f0f4ff] text-[#0e53dc] text-[13px] md:text-[14px] font-medium w-fit">
+                            {question.category}
+                          </span>
+                        )}
+                        <h3 className="font-semibold text-[17px] md:text-[18px] lg:text-[20px] text-[#181a1c] leading-[24px] md:leading-[26px] line-clamp-2 lg:line-clamp-1">
+                          {question.title}
+                        </h3>
+                      </div>
+                      <div className="flex flex-wrap gap-2 md:gap-[16px] items-center text-[14px] md:text-[16px]">
+                        <span className="font-medium text-[#393939] leading-[20px]" style={{ letterSpacing: '-0.4px' }}>
+                          {question._count.replies}개의 답변
+                        </span>
+                        <span className="text-[13px] md:text-[14px] text-[#adadad] leading-[18px]">
+                          {formatDate(question.createdAt)}
+                        </span>
+                        <span className="lg:hidden font-medium text-[#393939] leading-[20px]" style={{ letterSpacing: '-0.4px' }}>
+                          {question.author.name}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className="absolute right-[78px] top-1/2 -translate-y-1/2 translate-x-full">
+                  {/* Author Name - Desktop Only */}
+                  <div className="hidden lg:block absolute right-[78px] top-1/2 -translate-y-1/2 translate-x-full">
                     <span className="font-medium text-[18px] text-[#393939] leading-[24px]" style={{ letterSpacing: '-0.4px' }}>
                       {question.author.name}
                     </span>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
             ))}
           </div>
         )}
 
         {/* Pagination */}
-        <div className="flex items-center justify-center gap-[6px] mt-16">
-          <button className="w-[32px] h-[32px] rounded-full bg-[rgba(14,83,220,0.07)] flex items-center justify-center">
-            <span className="font-semibold text-[16px] text-[#0e53dc] leading-[24px]" style={{ letterSpacing: '-0.4px' }}>
-              1
-            </span>
-          </button>
-          <button className="w-[32px] h-[32px] rounded-full flex items-center justify-center hover:bg-gray-100">
-            <span className="font-semibold text-[16px] text-[#797979] leading-[24px]" style={{ letterSpacing: '-0.4px' }}>
-              2
-            </span>
-          </button>
-          <button className="w-[32px] h-[32px] rounded-full flex items-center justify-center hover:bg-gray-100">
-            <span className="font-semibold text-[16px] text-[#797979] leading-[24px]" style={{ letterSpacing: '-0.4px' }}>
-              3
-            </span>
-          </button>
-          <button className="w-[32px] h-[32px] rounded-full flex items-center justify-center hover:bg-gray-100">
-            <span className="font-semibold text-[16px] text-[#797979] leading-[24px]" style={{ letterSpacing: '-0.4px' }}>
-              4
-            </span>
-          </button>
-          <button className="w-[32px] h-[32px] rounded-full flex items-center justify-center hover:bg-gray-100">
-            <span className="font-semibold text-[16px] text-[#797979] leading-[24px]" style={{ letterSpacing: '-0.4px' }}>
-              5
-            </span>
-          </button>
-          <button className="w-[32px] h-[32px] flex items-center justify-center">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <path d="M12 8L20 16L12 24" stroke="#797979" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-        </div>
+        {!loading && questions.length > 0 && (
+          <div className="flex items-center justify-center gap-[6px] mt-16">
+            {/* Previous Button */}
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="w-[32px] h-[32px] flex items-center justify-center disabled:opacity-30"
+            >
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M20 8L12 16L20 24" stroke="#797979" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            {/* Page Numbers */}
+            {(() => {
+              const maxVisible = 5;
+              let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+              let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+              if (endPage - startPage + 1 < maxVisible) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+              }
+
+              return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-[32px] h-[32px] rounded-full flex items-center justify-center transition-colors ${
+                    currentPage === pageNum
+                      ? 'bg-[rgba(14,83,220,0.07)]'
+                      : 'hover:bg-gray-100'
+                  }`}
+                >
+                  <span
+                    className={`font-semibold text-[16px] leading-[24px] ${
+                      currentPage === pageNum ? 'text-[#0e53dc]' : 'text-[#797979]'
+                    }`}
+                    style={{ letterSpacing: '-0.4px' }}
+                  >
+                    {pageNum}
+                  </span>
+                </button>
+              ));
+            })()}
+
+            {/* Next Button */}
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="w-[32px] h-[32px] flex items-center justify-center disabled:opacity-30"
+            >
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M12 8L20 16L12 24" stroke="#797979" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
       <Footer />

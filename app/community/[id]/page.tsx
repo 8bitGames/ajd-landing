@@ -3,11 +3,14 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useAuth } from "@/lib/hooks/useAuth";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import Button from "../../components/ui/Button";
-import { ProfileIcon } from "../../components/ui/Icons";
+import Button, { BackButton } from "../../components/ui/Button";
+import { ProfileIcon, QuestionIconLarge } from "../../components/ui/Icons";
+import CommunityBannerCarousel from "../../components/CommunityBannerCarousel";
 
 interface Reply {
   id: string;
@@ -25,6 +28,7 @@ interface Post {
   id: string;
   title: string;
   content: string;
+  category?: string;
   viewCount: number;
   createdAt: string;
   author: {
@@ -106,7 +110,7 @@ export default function PostDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Header />
         <div className="flex items-center justify-center py-20">
           <p className="text-gray-500">로딩 중...</p>
@@ -118,7 +122,7 @@ export default function PostDetailPage() {
 
   if (!post) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Header />
         <div className="flex items-center justify-center py-20">
           <p className="text-gray-500">게시글을 찾을 수 없습니다.</p>
@@ -129,108 +133,123 @@ export default function PostDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Header />
 
-      {/* Hero Banner */}
-      <section className="bg-gradient-to-br from-blue-50 to-purple-50 py-16">
-        <div className="max-w-[1920px] mx-auto px-[420px]">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-800 mb-2">사업의 성장, 준사가 아닌 경제의 원으로</p>
-              <h1 className="text-4xl font-bold mb-2 text-black">서로 배우고 도와주는 진짜 커뮤니티</h1>
-              <h2 className="text-4xl font-bold text-blue-600">김사장에서 함께해요!</h2>
-            </div>
-            <div className="text-8xl">🤝</div>
-          </div>
+      {/* Banner */}
+      <section className="py-8 md:py-12 lg:py-20">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px]">
+          <CommunityBannerCarousel />
         </div>
       </section>
 
-      {/* Main Content */}
-      <div className="max-w-[1920px] mx-auto px-[420px] py-16">
-        <div className="bg-white rounded-2xl shadow-sm p-8">
-          {/* Back Button */}
-          <Link
-            href="/community"
-            className="inline-flex items-center gap-2 mb-6"
-          >
-            <Button variant="ghost" size="sm">← 목록으로</Button>
-          </Link>
-
-          {/* Post Content */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4 mb-4">
-              <ProfileIcon size={40} />
-              <div>
-                <div className="font-medium text-gray-900">이하나</div>
-                <div className="text-sm text-gray-600">2025.05.01 15:32</div>
-              </div>
-              <span className="ml-auto bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">
-                응답중
-              </span>
-            </div>
-
-            <h1 className="text-2xl font-bold mb-6 text-gray-900">날씨가 좋으면 포장 매출이 늘어나나요?</h1>
-
-            <p className="text-gray-800 leading-relaxed mb-6">
-              저희 가게는 아직 포장을 운영하고 있지는 않은데요, 날씨만 좋으면 이상하게 배달 매출이 늘어나는 것 같더라구요.
-              지금은 겨울이 오면 오히려 손님이 적고 날씨 좋으면 조금씩 늘어나는 것 같은데 다른 분들도 저랑 비슷하게 느끼시는지
-              궁금해요. 지금 위기가 되어서는 안 되는데, 날씨 좋을 때 포장 매출을 늘리는 방법이 있을까 싶어서 질문드립니다.
-              좋은 의견 부탁드립니다. 그리고나서는 어떤 방법으로 했을 때 괜찮았었는지 의견주시면 감사하겠습니다.
+      {/* Sub tab */}
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px]">
+        <div className="border-b-2 border-[#7b8a9c] pb-4 md:pb-6 mb-8 md:mb-12 flex items-center justify-between">
+          <Link href="/community" className="flex items-center gap-2 md:gap-4">
+            <BackButton />
+            <p className="font-bold text-[16px] md:text-[18px] lg:text-[20px] text-[#7b8a9c] leading-[24px] md:leading-[28px]" style={{ letterSpacing: '-0.7px' }}>
+              목록으로
             </p>
+          </Link>
+        </div>
+      </div>
 
-            <div className="flex gap-4">
-              <Button variant="ghost" size="sm">추천</Button>
-              <Button variant="ghost" size="sm">반대</Button>
-            </div>
-          </div>
-
-          {/* Replies Section */}
-          <div className="border-t pt-6">
-            <div className="space-y-4 mb-6">
-              {post.replies.map((reply) => (
-                <div key={reply.id} className="flex gap-4 p-4 bg-gray-50 rounded-lg">
-                  <ProfileIcon size={40} className="flex-shrink-0" />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-medium text-gray-900">{reply.author.name}</span>
-                      <span className="text-sm text-gray-600">{formatDate(reply.createdAt)}</span>
-                    </div>
-                    <p className="text-gray-800 leading-relaxed">{reply.content}</p>
-                  </div>
-                </div>
-              ))}
-
-              {/* Reply Input */}
-              {showReplyInput && (
-                <div className="flex gap-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                  <ProfileIcon size={40} className="flex-shrink-0" />
-                  <div className="flex-1">
-                    <div className="font-medium mb-2 text-gray-900">김사장</div>
-                    <textarea
-                      value={replyText}
-                      onChange={(e) => setReplyText(e.target.value)}
-                      placeholder="답변을 달아주세요"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px] text-[#1a1a1a] placeholder:text-[#a2a9b0]"
-                    />
-                    <div className="flex justify-end mt-2">
-                      <Button variant="secondary" size="md" onClick={handleSubmitReply}>
-                        답변등록
-                      </Button>
-                    </div>
-                  </div>
-                </div>
+      {/* Question Content */}
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px] pb-16">
+        <div className="border-b-2 border-[#adadad] pb-12 mb-12">
+          <div className="flex gap-4 items-start">
+            <QuestionIconLarge />
+            <div className="flex-1">
+              {post.category && (
+                <span className="inline-block px-[16px] py-[6px] rounded-[16px] bg-[#f0f4ff] text-[#0e53dc] text-[16px] font-semibold mb-4">
+                  {post.category}
+                </span>
               )}
-            </div>
-
-            {!showReplyInput && (
-              <div className="flex justify-center">
-                <Button variant="outline" size="lg" onClick={() => setShowReplyInput(true)}>
-                  답변달기
-                </Button>
+              <h1 className="font-bold text-[28px] text-[#181a1c] leading-[36px] mb-6">
+                {post.title}
+              </h1>
+              <div className="flex gap-4 items-center text-[16px] mb-6">
+                <span className="font-semibold text-[#393939] leading-[24px]" style={{ letterSpacing: '-0.4px' }}>
+                  {post.author.name}
+                </span>
+                <span className="text-[#adadad] leading-[20px]">{formatDate(post.createdAt)}</span>
+                <span className="font-semibold text-[#393939] leading-[24px]" style={{ letterSpacing: '-0.4px' }}>
+                  {post.replies.length}개의 답변
+                </span>
               </div>
-            )}
+              <div className="text-[20px] text-[#393939] leading-[26px] prose prose-lg max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {post.content}
+                </ReactMarkdown>
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Reply Input (if active) */}
+        {showReplyInput && (
+          <div className="border-2 border-[#e1e4eb] rounded-[8px] p-8 mb-8">
+            <div className="flex gap-4">
+              <ProfileIcon size={40} />
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="font-bold text-[20px] text-[#393939] leading-[28px]" style={{ letterSpacing: '-0.7px' }}>
+                    {user?.name || '사용자'}
+                  </span>
+                </div>
+                <textarea
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="답변을 입력해주세요"
+                  className="w-full h-[80px] text-[18px] text-[#393939] leading-[24px] outline-none resize-none placeholder:text-[#a2a9b0]"
+                  style={{ letterSpacing: '-0.4px' }}
+                />
+                <div className="flex justify-end mt-2">
+                  <Button variant="primary" size="md" onClick={handleSubmitReply} className="bg-[#0e53dc]">
+                    답변등록
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Answers List */}
+        <div className="space-y-4 mb-8">
+          {post.replies.map((reply) => (
+            <div key={reply.id} className="bg-neutral-50 rounded-[8px] p-8">
+              <div className="flex gap-4">
+                <ProfileIcon size={40} />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-6">
+                    <span className="font-bold text-[20px] text-[#393939] leading-[28px]" style={{ letterSpacing: '-0.7px' }}>
+                      {reply.author.name}
+                    </span>
+                    <span className="text-[16px] text-[#adadad] leading-[20px]">{formatDate(reply.createdAt)}</span>
+                  </div>
+                  <div className="text-[18px] text-[#393939] leading-[24px] prose prose-lg max-w-none" style={{ letterSpacing: '-0.4px' }}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {reply.content}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Action Button */}
+        <div className="flex justify-center">
+          {!showReplyInput ? (
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => setShowReplyInput(true)}
+            >
+              답변달기
+            </Button>
+          ) : null}
         </div>
       </div>
 

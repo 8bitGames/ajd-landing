@@ -140,6 +140,31 @@ export default function AdminPage() {
     }
   };
 
+  const handleReopen = async (requestId: string) => {
+    if (!confirm('이 신청을 재검토 대기 상태로 변경하시겠습니까?')) return;
+
+    try {
+      setProcessing(requestId);
+
+      const res = await fetch(`/api/admin/expert-requests/${requestId}`, {
+        method: 'PATCH',
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert(data.message);
+        fetchData();
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      alert('처리 중 오류가 발생했습니다.');
+    } finally {
+      setProcessing(null);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString('ko-KR', {
@@ -235,7 +260,7 @@ export default function AdminPage() {
                 <div key={request.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="font-semibold text-lg">{request.user.name} ({request.user.username})</h3>
+                      <h3 className="font-semibold text-lg text-gray-900">{request.user.name} <span className="text-gray-600">({request.user.username})</span></h3>
                       <p className="text-sm text-gray-500">{formatDate(request.createdAt)}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -249,18 +274,18 @@ export default function AdminPage() {
                     </span>
                   </div>
 
-                  <div className="space-y-2 mb-4">
-                    <div>
-                      <span className="text-sm font-medium text-gray-700">전문 분야:</span>
-                      <p className="text-gray-900">{request.expertise}</p>
+                  <div className="space-y-3 mb-4">
+                    <div className="bg-gray-50 p-3 rounded">
+                      <span className="text-sm font-medium text-gray-700 block mb-1">전문 분야:</span>
+                      <p className="text-gray-900 font-medium">{request.expertise}</p>
                     </div>
-                    <div>
-                      <span className="text-sm font-medium text-gray-700">경력:</span>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <span className="text-sm font-medium text-gray-700 block mb-1">경력:</span>
                       <p className="text-gray-900 whitespace-pre-wrap">{request.experience}</p>
                     </div>
                     {request.certificate && (
-                      <div>
-                        <span className="text-sm font-medium text-gray-700">자격증:</span>
+                      <div className="bg-gray-50 p-3 rounded">
+                        <span className="text-sm font-medium text-gray-700 block mb-1">자격증:</span>
                         <p className="text-gray-900">{request.certificate}</p>
                       </div>
                     )}
@@ -289,6 +314,16 @@ export default function AdminPage() {
                         거부
                       </button>
                     </div>
+                  )}
+
+                  {request.status === 'REJECTED' && (
+                    <button
+                      onClick={() => handleReopen(request.id)}
+                      disabled={processing === request.id}
+                      className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    >
+                      재검토 (대기 상태로 변경)
+                    </button>
                   )}
                 </div>
               ))

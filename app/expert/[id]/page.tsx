@@ -1,58 +1,155 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { useAuth } from "@/lib/hooks/useAuth";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import Button, { BackButton } from "../../components/ui/Button";
 import { QuestionIconLarge, ProfileIcon, ExpertBadge } from "../../components/ui/Icons";
 
+interface Reply {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: {
+    id: string;
+    name: string;
+    username: string;
+    role: string;
+  };
+}
+
+interface Question {
+  id: string;
+  title: string;
+  content: string;
+  category?: string;
+  viewCount: number;
+  createdAt: string;
+  author: {
+    id: string;
+    name: string;
+    username: string;
+    role: string;
+  };
+  replies: Reply[];
+}
+
 export default function ExpertDetailPage() {
+  const params = useParams();
+  const { user } = useAuth();
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [loading, setLoading] = useState(true);
   const [showAnswerInput, setShowAnswerInput] = useState(false);
   const [answerText, setAnswerText] = useState("");
 
-  const answers = [
-    {
-      id: 1,
-      author: "이혜림",
-      date: "2025.05.01 15:32",
-      content: "안녕하세요. 세무 전문가 이혜림 입니다. 배달앱 수수료로 인해 고민이 많으시죠? 요즘 많은 소상공인분들의 고민이 아닐까 합니다. 현실적으로 수수료를 줄일 수 있는 가장 좋은 방법은 ",
-      isExpert: true,
-    },
-    {
-      id: 2,
-      author: "한지훈",
-      date: "2025.05.01 15:32",
-      content: "안녕하세요. 노무 전문가 한지훈 입니다. 배달앱 수수료로 인해 고민이 많으시죠? 요즘 많은 소상공인분들의 고민이 아닐까 합니다. 현실적으로 수수료를 줄일 수 있는 가장 좋은 방법은 ",
-      isExpert: true,
-    },
-  ];
+  useEffect(() => {
+    fetchQuestion();
+  }, [params.id]);
 
-  const handleSubmitAnswer = () => {
-    console.log("Answer submitted:", answerText);
-    setAnswerText("");
-    setShowAnswerInput(false);
+  const fetchQuestion = async () => {
+    try {
+      const res = await fetch(`/api/expert/questions/${params.id}`);
+      const data = await res.json();
+      if (data.success) {
+        setQuestion(data.post);
+      }
+    } catch (error) {
+      console.error('Failed to fetch question:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleSubmitAnswer = async () => {
+    if (!user) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
+    if (!answerText.trim()) {
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/expert/answers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: params.id, content: answerText }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setAnswerText("");
+        setShowAnswerInput(false);
+        fetchQuestion(); // 답변 목록 새로고침
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      alert('답변 작성 중 오류가 발생했습니다.');
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).replace(/\. /g, '.').replace(/\./g, '.').slice(0, -1);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <p className="text-gray-500">로딩 중...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!question) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <p className="text-gray-500">질문을 찾을 수 없습니다.</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
       <Header />
 
       {/* Banner */}
-      <section className="py-20">
-        <div className="max-w-[1920px] mx-auto px-[420px]">
+      <section className="py-8 md:py-12 lg:py-20">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px]">
           <div
-            className="rounded-[24px] overflow-hidden relative h-[320px]"
+            className="rounded-[16px] md:rounded-[20px] lg:rounded-[24px] overflow-hidden relative h-[200px] md:h-[260px] lg:h-[320px]"
             style={{
               background: 'linear-gradient(90deg, rgba(248, 238, 238, 1) 0%, rgba(248, 238, 238, 1) 100%)'
             }}
           >
-            <div className="flex items-center justify-between px-[64px] h-full">
+            <div className="flex items-center justify-between px-6 md:px-10 lg:px-[64px] h-full">
               <div className="flex-1">
-                <p className="text-[20px] text-[#555555] leading-[26px] mb-6">
+                <p className="text-[16px] md:text-[18px] lg:text-[20px] text-[#555555] leading-[22px] md:leading-[24px] lg:leading-[26px] mb-4 md:mb-5 lg:mb-6">
                   전문가들이 함께 고민하고, 함께 성장합니다
                 </p>
-                <h1 className="text-[32px] font-bold leading-[44px] text-[#0A095B]">
+                <h1 className="text-[20px] md:text-[26px] lg:text-[32px] font-bold leading-[28px] md:leading-[36px] lg:leading-[44px] text-[#0A095B]">
                   당신의 가게를 위한 1:1 맞춤 솔루션
                 </h1>
               </div>
@@ -62,11 +159,11 @@ export default function ExpertDetailPage() {
       </section>
 
       {/* Sub tab */}
-      <div className="max-w-[1920px] mx-auto px-[420px]">
-        <div className="border-b-2 border-[#7b8a9c] pb-6 mb-12 flex items-center justify-between">
-          <Link href="/expert" className="flex items-center gap-4">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px]">
+        <div className="border-b-2 border-[#7b8a9c] pb-4 md:pb-6 mb-8 md:mb-12 flex items-center justify-between">
+          <Link href="/expert" className="flex items-center gap-2 md:gap-4">
             <BackButton />
-            <p className="font-bold text-[20px] text-[#7b8a9c] leading-[28px]" style={{ letterSpacing: '-0.7px' }}>
+            <p className="font-bold text-[16px] md:text-[18px] lg:text-[20px] text-[#7b8a9c] leading-[24px] md:leading-[28px]" style={{ letterSpacing: '-0.7px' }}>
               목록으로
             </p>
           </Link>
@@ -74,47 +171,54 @@ export default function ExpertDetailPage() {
       </div>
 
       {/* Question Content */}
-      <div className="max-w-[1920px] mx-auto px-[420px] pb-16">
+      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px] pb-16">
         <div className="border-b-2 border-[#adadad] pb-12 mb-12">
           <div className="flex gap-4 items-start">
             <QuestionIconLarge />
             <div className="flex-1">
+              {question.category && (
+                <span className="inline-block px-[16px] py-[6px] rounded-[16px] bg-[#f0f4ff] text-[#0e53dc] text-[16px] font-semibold mb-4">
+                  {question.category}
+                </span>
+              )}
               <h1 className="font-bold text-[28px] text-[#181a1c] leading-[36px] mb-6">
-                배달앱 수수료 줄이는 방법 있을까요?
+                {question.title}
               </h1>
               <div className="flex gap-4 items-center text-[16px] mb-6">
                 <span className="font-semibold text-[#393939] leading-[24px]" style={{ letterSpacing: '-0.4px' }}>
-                  홍길동
+                  {question.author.name}
                 </span>
-                <span className="text-[#adadad] leading-[20px]">2025.05.01 15:32</span>
+                <span className="text-[#adadad] leading-[20px]">{formatDate(question.createdAt)}</span>
                 <span className="font-semibold text-[#393939] leading-[24px]" style={{ letterSpacing: '-0.4px' }}>
-                  1개의 답변
+                  {question.replies.length}개의 답변
                 </span>
               </div>
-              <p className="text-[20px] text-[#393939] leading-[26px]">
-                요즘 배달앱 수수료가 너무 높아서 고민입니다. 매출은 늘어나는데 실제로 남는 게 없어요.. 혹시 수수료 부담 줄이는 좋은 방법 아시는 분 계신가요?
-              </p>
+              <div className="text-[20px] text-[#393939] leading-[26px] prose prose-lg max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {question.content}
+                </ReactMarkdown>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Answer Input (if active) */}
-        {showAnswerInput && (
+        {/* Answer Input (if active) - 전문가만 가능 */}
+        {showAnswerInput && user?.role === 'EXPERT' && (
           <div className="border-2 border-[#e1e4eb] rounded-[8px] p-8 mb-8">
             <div className="flex gap-4">
               <ProfileIcon size={40} />
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="font-bold text-[20px] text-[#393939] leading-[28px]" style={{ letterSpacing: '-0.7px' }}>
-                    한지훈
+                    {user?.name || '사용자'}
                   </span>
-                  <ExpertBadge />
+                  {user?.role === 'EXPERT' && <ExpertBadge />}
                 </div>
                 <textarea
                   value={answerText}
                   onChange={(e) => setAnswerText(e.target.value)}
-                  placeholder="안녕하세요. 세무 전문가 한지훈 입니다. 배달앱 수수료로 인해 고민이 많으시죠? 요즘"
-                  className="w-full h-[80px] text-[18px] text-[#393939] leading-[24px] outline-none resize-none placeholder:text-[#393939]"
+                  placeholder="답변을 입력해주세요"
+                  className="w-full h-[80px] text-[18px] text-[#393939] leading-[24px] outline-none resize-none placeholder:text-[#a2a9b0]"
                   style={{ letterSpacing: '-0.4px' }}
                 />
                 <div className="flex justify-end mt-2">
@@ -129,39 +233,43 @@ export default function ExpertDetailPage() {
 
         {/* Answers List */}
         <div className="space-y-4 mb-8">
-          {answers.map((answer) => (
-            <div key={answer.id} className="bg-neutral-50 rounded-[8px] p-8">
+          {question.replies.map((reply) => (
+            <div key={reply.id} className="bg-neutral-50 rounded-[8px] p-8">
               <div className="flex gap-4">
                 <ProfileIcon size={40} />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-6">
                     <span className="font-bold text-[20px] text-[#393939] leading-[28px]" style={{ letterSpacing: '-0.7px' }}>
-                      {answer.author}
+                      {reply.author.name}
                     </span>
-                    <span className="text-[16px] text-[#adadad] leading-[20px]">{answer.date}</span>
-                    {answer.isExpert && <ExpertBadge />}
+                    <span className="text-[16px] text-[#adadad] leading-[20px]">{formatDate(reply.createdAt)}</span>
+                    {reply.author.role === 'EXPERT' && <ExpertBadge />}
                   </div>
-                  <p className="text-[18px] text-[#393939] leading-[24px]" style={{ letterSpacing: '-0.4px' }}>
-                    {answer.content}
-                  </p>
+                  <div className="text-[18px] text-[#393939] leading-[24px] prose prose-lg max-w-none" style={{ letterSpacing: '-0.4px' }}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {reply.content}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Action Button */}
-        <div className="flex justify-center">
-          {!showAnswerInput ? (
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setShowAnswerInput(true)}
-            >
-              목록
-            </Button>
-          ) : null}
-        </div>
+        {/* Action Button - 전문가만 표시 */}
+        {user?.role === 'EXPERT' && (
+          <div className="flex justify-center">
+            {!showAnswerInput ? (
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowAnswerInput(true)}
+              >
+                답변달기
+              </Button>
+            ) : null}
+          </div>
+        )}
       </div>
 
       <Footer />

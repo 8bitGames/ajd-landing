@@ -31,13 +31,36 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingRequest) {
+      // REJECTED 상태인 경우에만 수정 허용
+      if (existingRequest.status === 'REJECTED') {
+        const updatedRequest = await prisma.expertRequest.update({
+          where: { userId: user.id },
+          data: {
+            expertise,
+            experience,
+            certificate: certificate || null,
+            status: 'PENDING', // 다시 검토 대기 상태로
+            rejectReason: null,
+            reviewedBy: null,
+            reviewedAt: null,
+          },
+        });
+
+        return NextResponse.json({
+          success: true,
+          message: '전문가 신청이 수정되었습니다. 다시 검토 후 승인 여부를 알려드리겠습니다.',
+          request: updatedRequest,
+        });
+      }
+
+      // PENDING 또는 APPROVED 상태인 경우 에러
       return NextResponse.json(
         { success: false, message: '이미 전문가 신청을 하셨습니다.' },
         { status: 400 }
       );
     }
 
-    // 전문가 신청 생성
+    // 신규 전문가 신청 생성
     const expertRequest = await prisma.expertRequest.create({
       data: {
         userId: user.id,

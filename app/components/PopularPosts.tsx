@@ -1,33 +1,107 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+
+interface Post {
+  id: string;
+  title: string;
+  author: {
+    name: string;
+  };
+  createdAt: string;
+}
+
 export default function PopularPosts() {
-  const posts = [
-    { id: 1, title: "2023외식업 트렌드 실전편 마케팅편", author: "김사장탐험대", date: "2023.05.01" },
-    { id: 2, title: "음식물 쓰레기, 정말 신박한 처리 방법", author: "피리부는소라90", date: "2023.05.01" },
-    { id: 3, title: "고용노동부 '4대 기초노동질서 현장 점검'시작! 미리 교육 받아보세요", author: "나이스샷라이언65", date: "2023.05.01" },
-    { id: 4, title: "네이버 플레이스 순위 이거 하지 마세요!", author: "장대비어피치66", date: "2023.05.01" },
-    { id: 5, title: "무료로 가게 장비 싹다 바꾸신 사장님 특별 노하우, 100% 공개합니다", author: "김사장탐험대", date: "2023.05.01" },
-  ];
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch('/api/community/posts?sortBy=viewCount&limit=5');
+
+        if (res.ok) {
+          const data = await res.json();
+          setPosts(data.posts || []);
+        }
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   return (
     <section className="mb-16">
-      <h2 className="text-3xl font-bold mb-6 text-gray-900">남들은 다 아는 #음식/외식/배달업계 HOT 이슈</h2>
-      <div className="space-y-4">
-        {posts.map((post) => (
-          <div key={post.id} className="border-b border-gray-200 pb-4 hover:bg-gray-50 transition-colors p-3 rounded-lg cursor-pointer">
-            <div className="flex items-start gap-4">
-              <div className="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
-                {post.id}
-              </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">{post.title}</h3>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  <span>{post.author}</span>
-                  <span>{post.date}</span>
-                </div>
-              </div>
+      <h2
+        className="text-[24px] font-bold mb-6"
+        style={{ color: "#181A1C", letterSpacing: "-0.7px", lineHeight: "34px" }}
+      >
+        남들은 다 아는 #<span style={{ color: "#0E53DC" }}>음식/외식/배달업계</span> HOT 이슈
+      </h2>
+      {loading ? (
+        <div className="flex justify-center items-center py-10">
+          <div className="text-gray-500">로딩 중...</div>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-6">
+          {posts.length === 0 ? (
+            <div className="text-gray-500 text-center py-8">
+              게시글이 없습니다.
             </div>
-          </div>
-        ))}
-      </div>
+          ) : (
+            posts.map((post, index) => (
+              <Link key={post.id} href={`/community/${post.id}`} className="cursor-pointer">
+                <div className="flex items-center gap-3 mb-2">
+                  <div
+                    className="flex items-center justify-center rounded-[5.622px] flex-shrink-0"
+                    style={{
+                      width: "28px",
+                      height: "28px",
+                      backgroundColor: "rgba(14, 83, 220, 0.07)",
+                    }}
+                  >
+                    <span
+                      className="font-medium text-[18px]"
+                      style={{ color: "#152E5F", letterSpacing: "-0.5px" }}
+                    >
+                      {index + 1}
+                    </span>
+                  </div>
+                  <h3
+                    className="font-semibold text-[18px]"
+                    style={{ color: "#181A1C", letterSpacing: "-0.5px" }}
+                  >
+                    {post.title}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-4 ml-[40px]">
+                  <span
+                    className="text-[15px]"
+                    style={{ color: "#797979", letterSpacing: "-0.5622px" }}
+                  >
+                    {post.author.name}
+                  </span>
+                  <span
+                    className="text-[15px]"
+                    style={{ color: "#ADADAD" }}
+                  >
+                    {new Date(post.createdAt).toLocaleDateString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                    }).replace(/\. /g, '.').replace(/\.$/, '')}
+                  </span>
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
+      )}
     </section>
   );
 }

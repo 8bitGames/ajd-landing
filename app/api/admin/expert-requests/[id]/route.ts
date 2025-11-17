@@ -101,3 +101,63 @@ export async function POST(
     );
   }
 }
+
+// 전문가 신청 재검토 (PATCH) - 관리자만, REJECTED 상태를 PENDING으로 변경
+export async function PATCH(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await requireAuth(UserRole.ADMIN);
+    const { id } = await params;
+
+    // 신청 정보 조회
+    const expertRequest = await prisma.expertRequest.findUnique({
+      where: { id },
+    });
+
+    if (!expertRequest) {
+      return NextResponse.json(
+        { success: false, message: '신청 정보를 찾을 수 없습니다.' },
+        { status: 404 }
+      );
+    }
+
+    // REJECTED 상태만 재검토 가능
+    if (expertRequest.status !== ExpertStatus.REJECTED) {
+      return NextResponse.json(
+        { success: false, message: '거부된 신청만 재검토할 수 있습니다.' },
+        { status: 400 }
+      );
+    }
+
+    // 상태를 PENDING으로 변경하고 거부 사유 초기화
+    await prisma.expertRequest.update({
+      where: { id },
+      data: {
+        status: ExpertStatus.PENDING,
+        rejectReason: null,
+        reviewedBy: null,
+        reviewedAt: null,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: '재검토 대기 상태로 변경되었습니다. 다시 승인/거부를 결정할 수 있습니다.',
+    });
+  } catch (error: any) {
+    if (error.message === 'Unauthorized' || error.message === 'Forbidden') {
+      return NextResponse.json(
+        { success: false, message: '관리자 권한이 필요합니다.' },
+        { status: 403 }
+      );
+    }
+
+    console.error('Reopen expert request error:', error);
+    return NextResponse.json(
+      { success: false, message: '재검토 처리 중 오류가 발생했습니다.' },
+      { status: 500 }
+    );
+  }
+}
