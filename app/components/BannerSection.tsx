@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function BannerSection() {
   return (
@@ -6,8 +7,9 @@ export default function BannerSection() {
       <div className="max-w-[1920px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20 2xl:px-[420px]">
         <div className="flex flex-col md:flex-row gap-4 md:gap-6">
           {/* Left Banner */}
-          <div
-            className="relative rounded-[8px] overflow-hidden cursor-pointer w-full md:flex-1 h-[140px] md:h-[160px]"
+          <Link
+            href="/articles/mz-restaurant-success"
+            className="relative rounded-[8px] overflow-hidden cursor-pointer w-full md:flex-1 h-[140px] md:h-[160px] block hover:opacity-90 transition-opacity"
             style={{
               backgroundColor: "rgba(14, 83, 220, 0.07)",
             }}
@@ -78,11 +80,12 @@ export default function BannerSection() {
                 className="object-cover"
               />
             </div>
-          </div>
+          </Link>
 
           {/* Right Banner */}
-          <div
-            className="relative rounded-[8px] overflow-hidden cursor-pointer w-full md:flex-1 h-[140px] md:h-[160px]"
+          <Link
+            href="/articles/income-tax-reduction-tips"
+            className="relative rounded-[8px] overflow-hidden cursor-pointer w-full md:flex-1 h-[140px] md:h-[160px] block hover:opacity-90 transition-opacity"
             style={{
               backgroundColor: "#F8EEEE",
             }}
@@ -138,7 +141,7 @@ export default function BannerSection() {
                 className="object-cover"
               />
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </section>

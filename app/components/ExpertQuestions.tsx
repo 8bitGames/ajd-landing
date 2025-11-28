@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import useSWR from "swr";
 import Link from "next/link";
 
 interface Question {
@@ -13,35 +14,25 @@ interface Question {
   createdAt: string;
 }
 
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export default function ExpertQuestions() {
   const [activeTab, setActiveTab] = useState("전체");
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState(false);
 
   const tabs = ["전체", "세무", "노무", "법률", "창폐업"];
 
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      setLoading(true);
-      try {
-        const categoryParam = activeTab === "전체" ? "" : `&category=${activeTab}`;
-        const res = await fetch(
-          `/api/expert/questions?sortBy=viewCount&limit=5${categoryParam}`
-        );
+  const categoryParam = activeTab === "전체" ? "" : `&category=${activeTab}`;
+  const { data, isLoading } = useSWR(
+    `/api/expert/questions?sortBy=viewCount&limit=5${categoryParam}`,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000, // 1분간 중복 요청 방지
+    }
+  );
 
-        if (res.ok) {
-          const data = await res.json();
-          setQuestions(data.posts || []);
-        }
-      } catch (error) {
-        console.error('Error fetching questions:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchQuestions();
-  }, [activeTab]);
+  const questions: Question[] = data?.posts || [];
 
   return (
     <section>
@@ -69,7 +60,7 @@ export default function ExpertQuestions() {
         ))}
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center items-center py-10">
           <div className="text-gray-500">로딩 중...</div>
         </div>

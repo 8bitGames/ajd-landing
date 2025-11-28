@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import useSWR from "swr";
 import Link from "next/link";
 
 interface Post {
@@ -12,28 +12,20 @@ interface Post {
   createdAt: string;
 }
 
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 export default function PopularPosts() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useSWR(
+    '/api/community/posts?sortBy=viewCount&limit=5',
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000, // 1분간 중복 요청 방지
+    }
+  );
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const res = await fetch('/api/community/posts?sortBy=viewCount&limit=5');
-
-        if (res.ok) {
-          const data = await res.json();
-          setPosts(data.posts || []);
-        }
-      } catch (error) {
-        console.error('Error fetching posts:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPosts();
-  }, []);
+  const posts: Post[] = data?.posts || [];
 
   return (
     <section className="mb-16">
@@ -43,7 +35,7 @@ export default function PopularPosts() {
       >
         남들은 다 아는 #<span style={{ color: "#0E53DC" }}>음식/외식/배달업계</span> HOT 이슈
       </h2>
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center items-center py-10">
           <div className="text-gray-500">로딩 중...</div>
         </div>
